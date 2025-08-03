@@ -69,7 +69,9 @@ function Configuracao({ isDarkTheme, toggleTheme, showDialog }) {
 
   return (
     <>
-      <h2>⚙️ Configurações</h2>
+      <div className="config-header">
+        <h1>Configurações do Aplicativo</h1>
+      </div>
 
       <div className="config-section">
         <h3>Tema do Aplicativo</h3>
