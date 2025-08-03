@@ -1,0 +1,334 @@
+:root {
+  /* Cores para o tema claro (predominante verde #2D755E) */
+  --primary-color: #2D755E; /* Verde principal */
+  --primary-dark: #245E4B; /* Verde mais escuro para hover/ativo */
+  --primary-light: #C8E6C9; /* Verde claro para fundos/destaques */
+  --secondary-color: #6c757d; /* Cinza para botões secundários */
+  --secondary-dark: #5a6268;
+  --background-color: #f5f5f5;
+  --surface-color: #ffffff;
+  --text-color: #333333;
+  --text-light-color: #666666;
+  --border-color: #dddddd;
+  --shadow-color: rgba(0,0,0,0.1);
+  --success-color: #2D755E;
+  --danger-color: #dc3545;
+}
+
+:root.dark-theme {
+  /* Cores para o tema escuro */
+  --primary-color: #388E3C; /* Verde principal no tema escuro */
+  --primary-dark: #2E7D32;
+  --primary-light: #A5D6A7;
+  --secondary-color: #9E9E9E;
+  --secondary-dark: #757575;
+  --background-color: #121212;
+  --surface-color: #1e1e1e;
+  --text-color: #e0e0e0;
+  --text-light-color: #b0b0b0;
+  --border-color: #333333;
+  --shadow-color: rgba(0,0,0,0.3);
+  --success-color: #4CAF50;
+  --danger-color: #EF5350;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', \'Roboto\', \'Oxygen\',
+    \'Ubuntu\', \'Cantarell\', \'Fira Sans\', \'Droid Sans\', \'Helvetica Neue\',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.App {
+  min-height: 100vh;
+  display: flex;
+  position: relative;
+}
+
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.5);
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.sidebar-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  transition: margin-left 0.3s ease;
+  min-height: 100vh;
+}
+
+.main-content.sidebar-open {
+  margin-left: 0; /* Sidebar is overlay on mobile */
+}
+
+.App-header {
+  background: var(--primary-color);
+  color: white;
+  padding: 20px;
+  box-shadow: 0 2px 10px var(--shadow-color);
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.menu-toggle {
+  background: rgba(255,255,255,0.2);
+  border: none;
+  color: white;
+  font-size: 24px;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+}
+
+.menu-toggle:hover {
+  background: rgba(255,255,255,0.3);
+}
+
+.header-text {
+  flex: 1;
+}
+
+.header-text h1 {
+  font-size: 2.5rem;
+  margin-bottom: 5px;
+  font-weight: 700;
+}
+
+.header-text p {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  margin: 0;
+}
+
+.App-main {
+  flex: 1;
+  padding: 40px 20px;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.App-footer {
+  background: var(--surface-color);
+  color: var(--text-color);
+  padding: 30px 20px;
+  text-align: center;
+  margin-top: auto;
+  box-shadow: 0 -2px 10px var(--shadow-color);
+}
+
+.App-footer p {
+  margin-bottom: 10px;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.App-footer p:last-child {
+  margin-bottom: 0;
+  opacity: 0.8;
+  font-size: 0.9rem;
+}
+
+/* Responsividade */
+@media (min-width: 1024px) {
+  .main-content.sidebar-open {
+    margin-left: 300px; /* Show sidebar as fixed on desktop */
+  }
+}
+
+@media (max-width: 768px) {
+  .header-text h1 {
+    font-size: 2rem;
+  }
+  
+  .header-text p {
+    font-size: 1rem;
+  }
+  
+  .App-main {
+    padding: 20px 15px;
+  }
+  
+  .App-footer {
+    padding: 20px 15px;
+  }
+  
+  .header-content {
+    gap: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-text h1 {
+    font-size: 1.5rem;
+  }
+  
+  .header-text p {
+    font-size: 0.9rem;
+  }
+  
+  .menu-toggle {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    padding: 8px;
+  }
+}
+
+/* Animações */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.container > * {
+  animation: fadeIn 0.6s ease-out;
+}
+
+.theme-toggle {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  margin-left: auto;
+  padding: 5px;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.theme-toggle:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+/* Estilos adicionais para autenticação */
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sign-out-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.sign-out-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Estilos para o componente de autenticação */
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+.auth-card {
+  background: white;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 400px;
+}
+
+.auth-title {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #333;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+/* Personalização do tema escuro para autenticação */
+.dark-theme .auth-container {
+  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+}
+
+.dark-theme .auth-card {
+  background: #2c3e50;
+  color: white;
+}
+
+.dark-theme .auth-title {
+  color: white;
+}
+
+/* Loading spinner */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.loading-spinner {
+  color: white;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.dark-theme .loading-container {
+  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+}
+
+
+

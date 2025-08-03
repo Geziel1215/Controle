@@ -1,0 +1,251 @@
+.gastos-list {
+  margin-top: 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: var(--surface-color);
+  border-radius: 12px;
+  box-shadow: 0 4px 8px var(--shadow-color);
+  border: 1px solid var(--border-color);
+}
+
+.header h2 {
+  color: var(--text-color);
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+.total-geral {
+  background: var(--primary-color);
+  color: white;
+  padding: 15px 25px;
+  border-radius: 25px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(14, 48, 37, 0.3);
+}
+
+.loading {
+  text-align: center;
+  padding: 60px;
+}
+
+.spinner {
+  border: 4px solid var(--border-color);
+  border-top: 4px solid var(--primary-color);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px;
+  color: var(--text-color);
+  background: var(--primary-light);
+  border-radius: 12px;
+  border: 2px solid var(--primary-color);
+  font-size: 1.1rem;
+}
+
+.empty-state p:first-child {
+  font-size: 1.3rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.fatura-container {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.tipo-pagamento-group {
+  background: var(--surface-color);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px var(--shadow-color);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+.tipo-pagamento-header {
+  background: var(--primary-color);
+  color: white;
+  padding: 20px 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tipo-pagamento-header h3 {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.tipo-total {
+  background: rgba(255,255,255,0.2);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.gastos-do-tipo {
+  padding: 0;
+}
+
+.gasto-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 25px;
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color 0.2s;
+}
+
+.gasto-item:last-child {
+  border-bottom: none;
+}
+
+.gasto-item:hover {
+  background-color: var(--primary-light);
+}
+
+.gasto-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gasto-descricao {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.gasto-detalhes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  font-size: 0.9rem;
+  color: var(--text-light-color);
+}
+
+.gasto-detalhes span {
+  background: var(--background-color);
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+}
+
+.categoria {
+  background: #e3f2fd !important;
+  color: #1976d2 !important;
+}
+
+.responsavel {
+  background: #f3e5f5 !important;
+  color: #7b1fa2 !important;
+}
+
+.vencimento {
+  background: #fff3e0 !important;
+  color: #f57c00 !important;
+}
+
+.parcela {
+  background: #e8f5e8 !important;
+  color: var(--primary-dark) !important;
+}
+
+.gasto-valor {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: var(--primary-color);
+  margin-left: 20px;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  .header h2 {
+    font-size: 1.5rem;
+  }
+  
+  .total-geral {
+    font-size: 1rem;
+    padding: 12px 20px;
+  }
+  
+  .tipo-pagamento-header {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+  }
+  
+  .gasto-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 15px 20px;
+  }
+  
+  .gasto-valor {
+    margin-left: 0;
+    align-self: flex-end;
+    font-size: 1.2rem;
+  }
+  
+  .gasto-detalhes {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    padding: 15px;
+  }
+  
+  .tipo-pagamento-header {
+    padding: 15px 20px;
+  }
+  
+  .tipo-pagamento-header h3 {
+    font-size: 1.1rem;
+  }
+  
+  .gasto-item {
+    padding: 12px 15px;
+  }
+  
+  .gasto-descricao {
+    font-size: 1rem;
+  }
+  
+  .gasto-detalhes {
+    flex-direction: column;
+    gap: 5px;
+  }
+}
+
+
+
