@@ -3,6 +3,7 @@ import './Sidebar.css';
 
 function Sidebar({ activeTab, onTabChange, isOpen, toggleSidebar }) {
   const menuItems = [
+    { id: 'home', label: ' Home', icon: '🏠' },
     { id: 'gastos', label: ' Gastos', icon: '💳' },
     { id: 'manutencao', label: 'Manutenção de Gastos', icon: '🛠️' },
     { id: 'resumo', label: 'Resumo', icon: '📊' },

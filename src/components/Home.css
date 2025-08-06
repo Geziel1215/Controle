@@ -1,0 +1,43 @@
+.carousel-container {
+  display: flex;
+  overflow-x: auto;
+  gap: 16px;
+  padding: 16px 0;
+  margin-bottom: 4cqmin;
+}
+
+.home-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+.carousel-card {
+  min-width: 140px;
+  height: 250px;
+  background: #f4f4f4;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.carousel-card:hover {
+  background: #e0e0e0;
+}
+
+.carousel-icon {
+  font-size: 2rem;
+  margin-bottom: 8px;
+}
+
+.carousel-card.active {
+  border: 2px solid #1976d2;
+  box-shadow: 0 0 12px #1976d244;
+}

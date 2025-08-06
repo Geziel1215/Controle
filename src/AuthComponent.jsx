@@ -11,10 +11,13 @@ const supabase = createClient(
 );
 
 function AuthComponent() {
-  return (
+  return (    
     <div className="auth-container">
       <div className="auth-card">
-        <h2 className="auth-title">Acessar Controle de Gastos</h2>
+        <div className="auth-logo-container">
+          <img src="/cash.png" className="auth-logo" />
+        </div>
+        <h1 className="auth-title">Controle de Gastos</h1>                     
         <Auth
           supabaseClient={supabase}
           appearance={{ theme: ThemeSupa }}

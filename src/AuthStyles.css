@@ -19,6 +19,11 @@
   backdrop-filter: blur(10px);
 }
 
+.auth-logo-container {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
 .auth-title {
   text-align: center;
   margin-bottom: 30px;
