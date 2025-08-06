@@ -11,6 +11,7 @@ import ResumoGastos from './components/ResumoGastos';
 import ManutencaoGastos from './components/ManutencaoGastos';
 import Configuracao from './components/Configuracao';
 import CustomDialog from './components/CustomDialog';
+import Home from './components/Home';
 import './App.css';
 
 // Substitua com suas credenciais do Supabase
@@ -22,7 +23,7 @@ const supabase = createClient(
 function App() {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('gastos');
+  const [activeTab, setActiveTab] = useState('home');  
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isDarkTheme, setIsDarkTheme] = useState(false);
@@ -86,39 +87,43 @@ function App() {
 
   // Nova lógica para buscar o nome do usuário
   useEffect(() => {
-    const fetchUserName = async () => {
-      if (session?.user?.id) {
-        try {
-          const { data, error } = await supabase
-            .from('usuario')
-            .select('nome')
-            .eq('id_auth', session.user.id)
-            .single();
+  const fetchUserName = async () => {
+    if (session?.user?.id) {
+      try {
+        const { data, error } = await supabase
+          .from('usuario')
+          .select('id, id_auth, nome')
+          .eq('id_auth', session.user.id)
+          .single();
 
-          console.log('Dados retornados da tabela usuario:', data);
+        console.log('Dados retornados da tabela usuario:', data, 'Erro:', error);
 
-          if (error) {
-            console.error('Erro ao buscar nome do usuário:', error.message);
-            setUserName(session.user.email); // Fallback para email se houver erro
-            return;
-          }
-
-          if (data && data.nome && data.nome.trim() !== '') {
-            setUserName(data.nome);
-          } else {
-            setUserName(session.user.email); // Fallback para email se nome não for encontrado
-          }
-        } catch (error) {
-          console.error('Erro inesperado ao buscar nome do usuário:', error.message);
-          setUserName(session.user.email); // Fallback para email em caso de erro inesperado
+        if (error) {
+          console.error('Erro ao buscar nome do usuário:', error.message);
+          setUserName(session.user.email);
+          return;
         }
-      } else {
-        setUserName(''); // Limpa o nome se não houver sessão
-      }
-    };
 
-    fetchUserName();
-  }, [session]); // Depende da sessão
+        if (data) {
+          console.log('Campos do usuário:', data);
+        }
+
+        if (data && data.nome && data.nome.trim() !== '') {
+          setUserName(data.nome);
+        } else {
+          setUserName(session.user.email);
+        }
+      } catch (error) {
+        console.error('Erro inesperado ao buscar nome do usuário:', error.message);
+        setUserName(session.user.email);
+      }
+    } else {
+      setUserName('');
+    }
+  };
+
+  fetchUserName();
+}, [session]);
 
   // Nova lógica para verificar data_corte
   useEffect(() => {
@@ -233,6 +238,8 @@ function App() {
             />
           </>
         );
+      case 'home':
+        return <Home activeTab={activeTab} onTabChange={setActiveTab} userName={userName} />;
       case 'manutencao':
         return <ManutencaoGastos />;
       case 'categorias':
@@ -296,11 +303,11 @@ function App() {
               <h1>Controle de Gastos</h1>
               
             </div>
-            {/* <div className="header-actions">              
+            { <div className="header-actions">              
               {userName && (
                 <p>Olá, {userName}</p>
               )}
-            </div> */}
+            </div> }
             <div className="header-actions">              
               <button className="sign-out-btn" onClick={handleSignOut} title="Sair">
                 🚪 Sair
