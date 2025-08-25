@@ -86,6 +86,18 @@ function AddGastoForm({ onGastoAdded, gastoToEdit, onCancelEdit }) {
     }
   };
 
+  const getDataCorte = async () => {
+  const { data, error } = await supabase
+    .from('config_projeto')
+    .select('data_corte')
+    .eq('id', 1)
+    .single();
+  if (error) {
+    throw new Error('Erro ao buscar data de corte: ' + error.message);
+  }
+  return data?.data_corte;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -114,17 +126,23 @@ function AddGastoForm({ onGastoAdded, gastoToEdit, onCancelEdit }) {
     try {
       setLoading(true);
       
-      const gastoData = {
-        descricao,
-        valor: parsedValor,
-        id_categoria: parseInt(currentIdCategoria),
-        id_responsavel: parseInt(currentIdResponsavel),
-        id_pagamento: parseInt(currentIdPagamento),
-        pago,
-        data_compra: dataCompra,
-        parcela: parsedParcela,
-        origem: 'manual'
-      };
+      let dataVencimento = null;
+    if (parseInt(parcela) === 1) {
+      dataVencimento = await getDataCorte();
+    }
+
+    const gastoData = {
+      descricao,
+      valor: parsedValor,
+      id_categoria: parseInt(currentIdCategoria),
+      id_responsavel: parseInt(currentIdResponsavel),
+      id_pagamento: parseInt(currentIdPagamento),
+      pago,
+      data_compra: dataCompra,
+      parcela: parsedParcela,
+      origem: 'manual',
+      data_vencimento: dataVencimento // Adiciona a data de vencimento
+    };
 
       if (gastoToEdit) {
         const { error } = await supabase

@@ -32,6 +32,9 @@ function ManutencaoGastos() {
     children: null
   });
 
+  const [mostrarParcelados, setMostrarParcelados] = useState(false);
+  const [parcelas, setParcelas] = useState([]);
+
   const closeDialog = () => {
     setDialogState({
       isOpen: false,
@@ -131,10 +134,20 @@ function ManutencaoGastos() {
     }
   };
 
+  // const handleEditClick = (gasto) => {
+  //   setGastoToEdit(gasto);
+  //   setShowEditForm(true);
+  // };
   const handleEditClick = (gasto) => {
-    setGastoToEdit(gasto);
-    setShowEditForm(true);
-  };
+  setGastoToEdit({
+    ...gasto,
+    idCategoria: gasto.categoria?.id || gasto.id_categoria || '',
+    idResponsavel: gasto.responsavel?.id || gasto.id_responsavel || '',
+    idPagamento: gasto.tipo_pagamento?.id || gasto.id_pagamento || '',
+    // ajuste outros campos se necessário
+  });
+  setShowEditForm(true);
+};
 
   const handleTogglePago = async (gasto) => {
     const newPagoStatus = gasto.pago === 'S' ? 'N' : 'S';
@@ -190,6 +203,38 @@ function ManutencaoGastos() {
       'Excluir', // confirmText
       'Cancelar' // cancelText
     );
+  };
+
+  const handleTogglePagoParcelado = async (gastoId, parcelaIds, novoStatus) => {
+    try {
+      const { error } = await supabase
+        .from('parcelado')
+        .update({ pago: novoStatus })
+        .in('id', parcelaIds);
+
+      if (error) throw error;
+
+      // Se todas as parcelas ficarem pagas, atualize o gasto cheio também
+      const { data: parcelasRestantes } = await supabase
+        .from('parcelado')
+        .select('id')
+        .eq('id_gasto', gastoId)
+        .eq('pago', 'N');
+
+      if (parcelasRestantes.length === 0) {
+        await supabase.from('gastos').update({ pago: 'S' }).eq('id', gastoId);
+      }
+
+      fetchGastos();
+      alert('Parcelas atualizadas com sucesso!');
+    } catch (error) {
+      alert('Erro ao atualizar parcelas: ' + error.message);
+    }
+  };
+
+  const buscarParcelas = async (gastoId) => {
+    const { data } = await supabase.from('parcelado').select('*').eq('id_gasto', gastoId);
+    setParcelas(data || []);
   };
 
   if (showEditForm) {
@@ -284,7 +329,12 @@ function ManutencaoGastos() {
             <div 
               key={gasto.id} 
               className={`gasto-card-manutencao ${gasto.pago === 'S' ? 'pago' : 'nao-pago'}`}
-              onClick={() => {
+              onClick={async () => {
+                setParcelas([]); // Limpa antes de buscar
+                if (gasto.parcela > 1) {
+                  const { data } = await supabase.from('parcelado').select('*').eq('id_gasto', gasto.id);
+                  setParcelas(data || []);
+                }
                 showDialogInternal(
                   'Ações para Gasto',
                   <div className="gasto-action-dialog-content">
@@ -295,26 +345,48 @@ function ManutencaoGastos() {
                       <button className="dialog-action-btn edit-btn" onClick={() => { handleEditClick(gasto); closeDialog(); }}>Editar</button>
                       <button 
                         className={`dialog-action-btn ${gasto.pago === 'S' ? 'estornar-btn' : 'pagar-btn'}`}
-                        onClick={() => { 
-                          closeDialog(); // Fecha o diálogo atual antes de abrir o de confirmação
-                          handleTogglePago(gasto); 
-                        }}
+                        onClick={() => { closeDialog(); handleTogglePago(gasto); }}
                       >
                         {gasto.pago === 'S' ? 'Estornar Pagamento' : 'Pagar'}
                       </button>
-                      <button className="dialog-action-btn delete-btn" onClick={() => { 
-                        closeDialog(); // Fecha o diálogo atual antes de abrir o de confirmação
-                        handleDeleteGasto(gasto); 
-                      }}>
+                      <button className="dialog-action-btn delete-btn" onClick={() => { closeDialog(); handleDeleteGasto(gasto); }}>
                         Excluir
                       </button>
                     </div>
+
+                    {/* Parcelados */}
+                    {gasto.parcela > 1 && (
+                      <div className="parcelados-container">
+                        <h4>Parcelas</h4>
+                        <div className="parcelas-list">
+                          {parcelas.length === 0 && <span>Carregando parcelas...</span>}
+                          {parcelas.map(parc => (
+                            <div key={parc.id} className={`parcela-card ${parc.pago === 'S' ? 'pago' : 'nao-pago'}`}>
+                              <div>
+                                <strong>Parcela:</strong> {parc.parcela}
+                              </div>
+                              <div>
+                                <strong>Valor:</strong> R$ {parseFloat(parc.valor).toFixed(2)}
+                              </div>
+                              <div>
+                                <strong>Vencimento:</strong> {new Date(parc.vencimento).toLocaleDateString('pt-BR')}
+                              </div>
+                              <div>
+                                <strong>Status:</strong> <span className={parc.pago === 'S' ? 'pago' : 'nao-pago'}>{parc.pago === 'S' ? 'Pago' : 'Não Pago'}</span>
+                              </div>
+                              <button
+                                className={`dialog-action-btn ${parc.pago === 'S' ? 'estornar-btn' : 'pagar-btn'}`}
+                                onClick={() => handleTogglePagoParcelado(gasto.id, [parc.id], parc.pago === 'S' ? 'N' : 'S')}
+                              >
+                                {parc.pago === 'S' ? 'Estornar' : 'Pagar'}
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>,
-                  false, // Não mostra o botão de confirmação padrão para este diálogo de seleção de ação
-                  null, 
-                  'Confirmar', 
-                  'Cancelar', 
-                  null // Não há children padrão para o diálogo de confirmação
+                  false, null, 'Confirmar', 'Cancelar', null
                 );
               }}
             >
