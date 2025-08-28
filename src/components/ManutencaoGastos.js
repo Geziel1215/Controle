@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../supabaseClient';
 import AddGastoForm from './AddGastoForm';
 import CustomDialog from './CustomDialog';
+import GastoActionDialog from './GastoActionDialog';
 import './ManutencaoGastos.css';
 
 function ManutencaoGastos() {
@@ -34,6 +35,7 @@ function ManutencaoGastos() {
 
   const [mostrarParcelados, setMostrarParcelados] = useState(false);
   const [parcelas, setParcelas] = useState([]);
+  const [loadingParcelas, setLoadingParcelas] = useState(false);
 
   const closeDialog = () => {
     setDialogState({
@@ -214,6 +216,15 @@ function ManutencaoGastos() {
 
       if (error) throw error;
 
+      // Atualiza o estado local das parcelas imediatamente
+      setParcelas(prevParcelas =>
+        prevParcelas.map(parc =>
+          parcelaIds.includes(parc.id)
+            ? { ...parc, pago: novoStatus }
+            : parc
+        )
+      );
+
       // Se todas as parcelas ficarem pagas, atualize o gasto cheio também
       const { data: parcelasRestantes } = await supabase
         .from('parcelado')
@@ -223,9 +234,9 @@ function ManutencaoGastos() {
 
       if (parcelasRestantes.length === 0) {
         await supabase.from('gastos').update({ pago: 'S' }).eq('id', gastoId);
+        fetchGastos();
       }
 
-      fetchGastos();
       alert('Parcelas atualizadas com sucesso!');
     } catch (error) {
       alert('Erro ao atualizar parcelas: ' + error.message);
@@ -255,6 +266,41 @@ function ManutencaoGastos() {
       </div>
     );
   }
+
+  const handleCardClick = async (gasto) => {
+    let parcelasData = [];
+    let loadingParcelasLocal = false;
+
+    if (gasto.parcela > 1) {
+      loadingParcelasLocal = true;
+      const { data } = await supabase.from('parcelado').select('*').eq('id_gasto', gasto.id);
+      parcelasData = data || [];
+      loadingParcelasLocal = false;
+    }
+
+    showDialogInternal(
+      'Ações para Gasto',
+      <GastoActionDialog
+        gasto={gasto}
+        parcelas={parcelasData}
+        loadingParcelas={loadingParcelasLocal}
+        onEdit={() => { handleEditClick(gasto); closeDialog(); }}
+        onTogglePago={() => { closeDialog(); handleTogglePago(gasto); }}
+        onDelete={() => { closeDialog(); handleDeleteGasto(gasto); }}
+        onTogglePagoParcelado={async (parc) => {
+          await handleTogglePagoParcelado(gasto.id, [parc.id], parc.pago === 'S' ? 'N' : 'S');
+          // Atualize o array local de parcelas imediatamente
+          parcelasData = parcelasData.map(p =>
+            p.id === parc.id ? { ...p, pago: parc.pago === 'S' ? 'N' : 'S' } : p
+          );
+          // Reabra o modal para refletir a mudança (simula re-render)
+          closeDialog();
+          handleCardClick(gasto);
+        }}
+      />,
+      false, null, 'Confirmar', 'Cancelar', null
+    );
+  };
 
   return (
     <div className="manutencao-gastos-container">
@@ -329,66 +375,7 @@ function ManutencaoGastos() {
             <div 
               key={gasto.id} 
               className={`gasto-card-manutencao ${gasto.pago === 'S' ? 'pago' : 'nao-pago'}`}
-              onClick={async () => {
-                setParcelas([]); // Limpa antes de buscar
-                if (gasto.parcela > 1) {
-                  const { data } = await supabase.from('parcelado').select('*').eq('id_gasto', gasto.id);
-                  setParcelas(data || []);
-                }
-                showDialogInternal(
-                  'Ações para Gasto',
-                  <div className="gasto-action-dialog-content">
-                    <p><strong>Descrição:</strong> {gasto.descricao}</p>
-                    <p><strong>Valor:</strong> R$ {parseFloat(gasto.valor).toFixed(2)}</p>
-                    <p><strong>Status:</strong> {gasto.pago === 'S' ? 'Pago' : 'Não Pago'}</p>
-                    <div className="dialog-actions-vertical">
-                      <button className="dialog-action-btn edit-btn" onClick={() => { handleEditClick(gasto); closeDialog(); }}>Editar</button>
-                      <button 
-                        className={`dialog-action-btn ${gasto.pago === 'S' ? 'estornar-btn' : 'pagar-btn'}`}
-                        onClick={() => { closeDialog(); handleTogglePago(gasto); }}
-                      >
-                        {gasto.pago === 'S' ? 'Estornar Pagamento' : 'Pagar'}
-                      </button>
-                      <button className="dialog-action-btn delete-btn" onClick={() => { closeDialog(); handleDeleteGasto(gasto); }}>
-                        Excluir
-                      </button>
-                    </div>
-
-                    {/* Parcelados */}
-                    {gasto.parcela > 1 && (
-                      <div className="parcelados-container">
-                        <h4>Parcelas</h4>
-                        <div className="parcelas-list">
-                          {parcelas.length === 0 && <span>Carregando parcelas...</span>}
-                          {parcelas.map(parc => (
-                            <div key={parc.id} className={`parcela-card ${parc.pago === 'S' ? 'pago' : 'nao-pago'}`}>
-                              <div>
-                                <strong>Parcela:</strong> {parc.parcela}
-                              </div>
-                              <div>
-                                <strong>Valor:</strong> R$ {parseFloat(parc.valor).toFixed(2)}
-                              </div>
-                              <div>
-                                <strong>Vencimento:</strong> {new Date(parc.vencimento).toLocaleDateString('pt-BR')}
-                              </div>
-                              <div>
-                                <strong>Status:</strong> <span className={parc.pago === 'S' ? 'pago' : 'nao-pago'}>{parc.pago === 'S' ? 'Pago' : 'Não Pago'}</span>
-                              </div>
-                              <button
-                                className={`dialog-action-btn ${parc.pago === 'S' ? 'estornar-btn' : 'pagar-btn'}`}
-                                onClick={() => handleTogglePagoParcelado(gasto.id, [parc.id], parc.pago === 'S' ? 'N' : 'S')}
-                              >
-                                {parc.pago === 'S' ? 'Estornar' : 'Pagar'}
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>,
-                  false, null, 'Confirmar', 'Cancelar', null
-                );
-              }}
+              onClick={() => handleCardClick(gasto)}
             >
               <div className="card-header">
                 <span className="card-descricao">{gasto.descricao}</span>

@@ -28,7 +28,6 @@ function Configuracao({ isDarkTheme, toggleTheme, showDialog }) {
     }
     } catch (error) {
       showDialog('Erro', 'Erro ao carregar data de corte: ' + error.message);
-      console.error('Erro ao carregar data de corte:', error);
     } finally {
       setLoading(false);
     }
@@ -61,7 +60,6 @@ function Configuracao({ isDarkTheme, toggleTheme, showDialog }) {
       showDialog('Sucesso', 'Data de corte salva com sucesso!');
     } catch (error) {
       showDialog('Erro', 'Erro ao salvar data de corte: ' + error.message);
-      console.error('Erro ao salvar data de corte:', error);
     } finally {
       setLoading(false);
     }

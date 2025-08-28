@@ -60,7 +60,6 @@ function ResumoGastos() {
       setFiltrado(true);
     } catch (error) {
       alert('Erro ao carregar resumo de gastos: ' + error.message);
-      console.error('Erro ao carregar resumo de gastos:', error);
     } finally {
       setLoading(false);
     }

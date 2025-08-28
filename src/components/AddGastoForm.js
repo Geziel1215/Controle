@@ -18,6 +18,7 @@ function AddGastoForm({ onGastoAdded, gastoToEdit, onCancelEdit }) {
 
   const [loading, setLoading] = useState(false);
   const [fetchingDropdowns, setFetchingDropdowns] = useState(true);
+  const [userIdAuth, setUserIdAuth] = useState('');
 
   // Função para resetar os campos do formulário
   const resetForm = () => {
@@ -54,6 +55,14 @@ function AddGastoForm({ onGastoAdded, gastoToEdit, onCancelEdit }) {
     }
   }, [gastoToEdit]); // Removidas categorias, responsaveis, tiposPagamento para evitar loop e garantir reset
 
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) setUserIdAuth(user.id);
+    };
+    fetchUser();
+  }, []);
+
   const fetchDropdownData = async () => {
     setFetchingDropdowns(true);
     try {
@@ -80,7 +89,6 @@ function AddGastoForm({ onGastoAdded, gastoToEdit, onCancelEdit }) {
 
     } catch (error) {
       alert('Erro ao carregar dados para os campos: ' + error.message);
-      console.error('Erro ao carregar dados para os campos:', error);
     } finally {
       setFetchingDropdowns(false);
     }
@@ -141,7 +149,8 @@ function AddGastoForm({ onGastoAdded, gastoToEdit, onCancelEdit }) {
       data_compra: dataCompra,
       parcela: parsedParcela,
       origem: 'manual',
-      data_vencimento: dataVencimento // Adiciona a data de vencimento
+      data_vencimento: dataVencimento,
+      usuario: userIdAuth // <-- aqui!
     };
 
       if (gastoToEdit) {
@@ -163,7 +172,7 @@ function AddGastoForm({ onGastoAdded, gastoToEdit, onCancelEdit }) {
       onGastoAdded();
     } catch (error) {
       alert('Erro ao salvar gasto: ' + error.message);
-      console.error('Erro ao salvar gasto:', error);
+
     } finally {
       setLoading(false);
     }

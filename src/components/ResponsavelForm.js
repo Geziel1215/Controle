@@ -7,9 +7,11 @@ function ResponsavelForm() {
   const [responsaveis, setResponsaveis] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState(null);
+  const [responsaveisUsados, setResponsaveisUsados] = useState([]);
 
   useEffect(() => {
     fetchResponsaveis();
+    fetchResponsaveisUsados();
   }, []);
 
   const fetchResponsaveis = async () => {
@@ -23,10 +25,23 @@ function ResponsavelForm() {
       setResponsaveis(data);
     } catch (error) {
       alert('Erro ao carregar responsáveis: ' + error.message);
-      console.error('Erro ao carregar responsáveis:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchResponsaveisUsados = async () => {
+    const { data, error } = await supabase
+      .from('gastos')
+      .select('id_responsavel');
+    if (!error && data) {
+      setResponsaveisUsados([...new Set(data.map(g => g.id_responsavel))]);
+    }
+  };
+
+  const afterChange = () => {
+    fetchResponsaveis();
+    fetchResponsaveisUsados();
   };
 
   const handleSubmit = async (e) => {
@@ -55,10 +70,9 @@ function ResponsavelForm() {
         alert('Responsável adicionado com sucesso!');
       }
       setDescricao('');
-      fetchResponsaveis();
+      afterChange();
     } catch (error) {
       alert('Erro ao salvar responsável: ' + error.message);
-      console.error('Erro ao salvar responsável:', error);
     }
   };
 
@@ -78,10 +92,9 @@ function ResponsavelForm() {
         .eq('id', id);
       if (error) throw error;
       alert('Responsável excluído com sucesso!');
-      fetchResponsaveis();
+      afterChange();
     } catch (error) {
       alert('Erro ao excluir responsável: ' + error.message);
-      console.error('Erro ao excluir responsável:', error);
     }
   };
 
@@ -124,7 +137,10 @@ function ResponsavelForm() {
               <span>{resp.descricao}</span>
               <div className="crud-actions">
                 <button onClick={() => handleEdit(resp)} className="edit-button">Editar</button>
-                <button onClick={() => handleDelete(resp.id)} className="delete-button">Excluir</button>
+                {/* Só mostra o botão excluir se NÃO estiver em uso */}
+                {!responsaveisUsados.includes(resp.id) && (
+                  <button onClick={() => handleDelete(resp.id)} className="delete-button">Excluir</button>
+                )}
               </div>
             </li>
           ))}
