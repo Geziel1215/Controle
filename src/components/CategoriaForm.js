@@ -7,9 +7,11 @@ function CategoriaForm() {
   const [categorias, setCategorias] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState(null);
+  const [categoriasUsadas, setCategoriasUsadas] = useState([]); // NOVO
 
   useEffect(() => {
     fetchCategorias();
+    fetchCategoriasUsadas(); // NOVO
   }, []);
 
   const fetchCategorias = async () => {
@@ -23,10 +25,25 @@ function CategoriaForm() {
       setCategorias(data);
     } catch (error) {
       alert('Erro ao carregar categorias: ' + error.message);
-      console.error('Erro ao carregar categorias:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  // NOVO: Busca IDs de categorias usadas em gastos
+  const fetchCategoriasUsadas = async () => {
+    const { data, error } = await supabase
+      .from('gastos')
+      .select('id_categoria');
+    if (!error && data) {
+      setCategoriasUsadas([...new Set(data.map(g => g.id_categoria))]);
+    }
+  };
+
+  // Chame fetchCategoriasUsadas após adicionar, editar ou excluir
+  const afterChange = () => {
+    fetchCategorias();
+    fetchCategoriasUsadas();
   };
 
   const handleSubmit = async (e) => {
@@ -38,7 +55,6 @@ function CategoriaForm() {
 
     try {
       if (editingId) {
-        // Update existing category
         const { error } = await supabase
           .from('categoria')
           .update({ descricao: descricao.trim() })
@@ -47,7 +63,6 @@ function CategoriaForm() {
         alert('Categoria atualizada com sucesso!');
         setEditingId(null);
       } else {
-        // Add new category
         const { error } = await supabase
           .from('categoria')
           .insert([{ descricao: descricao.trim() }]);
@@ -55,10 +70,9 @@ function CategoriaForm() {
         alert('Categoria adicionada com sucesso!');
       }
       setDescricao('');
-      fetchCategorias();
+      afterChange(); // Use afterChange
     } catch (error) {
       alert('Erro ao salvar categoria: ' + error.message);
-      console.error('Erro ao salvar categoria:', error);
     }
   };
 
@@ -78,10 +92,9 @@ function CategoriaForm() {
         .eq('id', id);
       if (error) throw error;
       alert('Categoria excluída com sucesso!');
-      fetchCategorias();
+      afterChange(); // Use afterChange
     } catch (error) {
       alert('Erro ao excluir categoria: ' + error.message);
-      console.error('Erro ao excluir categoria:', error);
     }
   };
 
@@ -124,7 +137,10 @@ function CategoriaForm() {
               <span>{cat.descricao}</span>
               <div className="crud-actions">
                 <button onClick={() => handleEdit(cat)} className="edit-button">Editar</button>
-                <button onClick={() => handleDelete(cat.id)} className="delete-button">Excluir</button>
+                {/* Só mostra o botão excluir se NÃO estiver em uso */}
+                {!categoriasUsadas.includes(cat.id) && (
+                  <button onClick={() => handleDelete(cat.id)} className="delete-button">Excluir</button>
+                )}
               </div>
             </li>
           ))}

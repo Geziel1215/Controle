@@ -11,11 +11,13 @@ function TipoPagamentoForm() {
     tipo: 'CARTAO'
   });
   const [tiposPagamento, setTiposPagamento] = useState([]);
+  const [tiposPagamentoUsados, setTiposPagamentoUsados] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState(null);
 
   useEffect(() => {
     fetchTiposPagamento();
+    fetchTiposPagamentoUsados();
   }, []);
 
   const fetchTiposPagamento = async () => {
@@ -29,9 +31,19 @@ function TipoPagamentoForm() {
       setTiposPagamento(data);
     } catch (error) {
       alert('Erro ao carregar tipos de pagamento: ' + error.message);
-      console.error('Erro ao carregar tipos de pagamento:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchTiposPagamentoUsados = async () => {
+    // Busca todos os id_pagamento usados em gastos
+    const { data, error } = await supabase
+      .from('gastos')
+      .select('id_pagamento');
+    if (!error && data) {
+      // Cria um array só com os ids únicos
+      setTiposPagamentoUsados([...new Set(data.map(g => g.id_pagamento))]);
     }
   };
 
@@ -41,6 +53,11 @@ function TipoPagamentoForm() {
       ...prev,
       [name]: value
     }));
+  };
+
+  const afterChange = () => {
+    fetchTiposPagamento();
+    fetchTiposPagamentoUsados();
   };
 
   const handleSubmit = async (e) => {
@@ -68,6 +85,7 @@ function TipoPagamentoForm() {
         if (error) throw error;
         alert('Tipo de pagamento atualizado com sucesso!');
         setEditingId(null);
+        afterChange();
       } else {
         // Add new
         const { error } = await supabase
@@ -75,6 +93,7 @@ function TipoPagamentoForm() {
           .insert([dataToSave]);
         if (error) throw error;
         alert('Tipo de pagamento adicionado com sucesso!');
+        afterChange();
       }
       
       setFormData({
@@ -84,10 +103,8 @@ function TipoPagamentoForm() {
         ativo: 'S',
         tipo: 'CARTAO'
       });
-      fetchTiposPagamento();
     } catch (error) {
       alert('Erro ao salvar tipo de pagamento: ' + error.message);
-      console.error('Erro ao salvar tipo de pagamento:', error);
     }
   };
 
@@ -113,10 +130,9 @@ function TipoPagamentoForm() {
         .eq('id', id);
       if (error) throw error;
       alert('Tipo de pagamento excluído com sucesso!');
-      fetchTiposPagamento();
+      afterChange();
     } catch (error) {
       alert('Erro ao excluir tipo de pagamento: ' + error.message);
-      console.error('Erro ao excluir tipo de pagamento:', error);
     }
   };
 
@@ -221,7 +237,10 @@ function TipoPagamentoForm() {
               </div>
               <div className="crud-actions">
                 <button onClick={() => handleEdit(tipo)} className="edit-button">Editar</button>
-                <button onClick={() => handleDelete(tipo.id)} className="delete-button">Excluir</button>
+                {/* Só mostra o botão excluir se NÃO estiver em uso */}
+                {!tiposPagamentoUsados.includes(tipo.id) && (
+                  <button onClick={() => handleDelete(tipo.id)} className="delete-button">Excluir</button>
+                )}
               </div>
             </li>
           ))}

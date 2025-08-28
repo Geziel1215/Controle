@@ -46,7 +46,6 @@ function GastosList({ refreshTrigger }) {
       
     } catch (error) {
       alert('Erro ao carregar gastos em aberto: ' + error.message);
-      console.error('Erro ao carregar gastos em aberto:', error);
     } finally {
       setLoading(false);
     }

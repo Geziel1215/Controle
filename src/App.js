@@ -64,7 +64,6 @@ function App() {
       setSession(session);
       setLoading(false);
     }).catch((error) => {
-      console.error('Erro ao obter sessão:', error);
       setLoading(false);
     });
 
@@ -98,8 +97,7 @@ function App() {
 
         console.log('Dados retornados da tabela usuario:', data, 'Erro:', error);
 
-        if (error) {
-          console.error('Erro ao buscar nome do usuário:', error.message);
+        if (error) {          
           setUserName(session.user.email);
           return;
         }
@@ -114,7 +112,6 @@ function App() {
           setUserName(session.user.email);
         }
       } catch (error) {
-        console.error('Erro inesperado ao buscar nome do usuário:', error.message);
         setUserName(session.user.email);
       }
     } else {
@@ -136,7 +133,6 @@ function App() {
           .single();
 
         if (error) {
-          console.error('Erro ao buscar data_corte:', error.message);
           return;
         }
 
@@ -154,7 +150,6 @@ function App() {
           }
         }
       } catch (error) {
-        console.error('Erro inesperado ao verificar data_corte:', error.message);
       }
     };
 
