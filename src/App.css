@@ -1,6 +1,7 @@
 :root {
   /* Cores para o tema claro (predominante verde #2D755E) */
   --primary-color: #2D755E; /* Verde principal */
+  --primary-light: #C8E6C9; /* Verde claro para fundos/destaques */
   --primary-dark: #245E4B; /* Verde mais escuro para hover/ativo */
   --primary-light: #C8E6C9; /* Verde claro para fundos/destaques */
   --secondary-color: #6c757d; /* Cinza para botões secundários */
