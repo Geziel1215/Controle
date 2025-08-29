@@ -40,8 +40,6 @@ function App() {
 
   // Debug: Log das variáveis de ambiente
   useEffect(() => {
-    console.log('REACT_APP_SUPABASE_URL:', process.env.REACT_APP_SUPABASE_URL);
-    console.log('REACT_APP_SUPABASE_ANON_KEY:', process.env.REACT_APP_SUPABASE_ANON_KEY ? 'Definida' : 'Não definida');
   }, []);
 
   // Load theme preference from localStorage
@@ -55,12 +53,9 @@ function App() {
 
   // Gerenciar sessão de autenticação
   useEffect(() => {
-    console.log('Iniciando verificação de sessão...');
     
     // Obter sessão inicial
     supabase.auth.getSession().then(({ data: { session }, error }) => {
-      console.log('Sessão obtida:', session);
-      console.log('Erro na sessão:', error);
       setSession(session);
       setLoading(false);
     }).catch((error) => {
@@ -70,8 +65,7 @@ function App() {
     // Escutar mudanças na autenticação
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      console.log('Mudança de estado de auth:', _event, session);
+    } = supabase.auth.onAuthStateChange((_event, session) => {      
       setSession(session);
       setLoading(false);
     });
@@ -81,7 +75,6 @@ function App() {
 
   // Debug: Log dos estados
   useEffect(() => {
-    console.log('Estado atual - Loading:', loading, 'Session:', session);
   }, [loading, session]);
 
   // Nova lógica para buscar o nome do usuário
@@ -95,15 +88,13 @@ function App() {
           .eq('id_auth', session.user.id)
           .single();
 
-        console.log('Dados retornados da tabela usuario:', data, 'Erro:', error);
-
         if (error) {          
           setUserName(session.user.email);
           return;
         }
 
         if (data) {
-          console.log('Campos do usuário:', data);
+          
         }
 
         if (data && data.nome && data.nome.trim() !== '') {
@@ -253,11 +244,10 @@ function App() {
   };
 
   // Debug: Forçar renderização da tela de login para teste
-  console.log('Renderizando - Loading:', loading, 'Session:', session);
+  
 
   // Mostrar loading enquanto verifica a sessão
   if (loading) {
-    console.log('Renderizando loading...');
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
         <div>Carregando... (Debug: verificando sessão)</div>
@@ -267,12 +257,10 @@ function App() {
 
   // Se não há sessão, mostrar tela de login
   if (!session) {
-    console.log('Renderizando AuthComponent...');
     return <AuthComponent />;
   }
 
   // Se há sessão, mostrar a aplicação principal
-  console.log('Renderizando aplicação principal...');
   return (
     <div className="App">
       {/* Sidebar Overlay */}
@@ -298,11 +286,11 @@ function App() {
               <h1>Controle de Gastos</h1>
               
             </div>
-            { <div className="header-actions">              
+            {/* { <div className="header-actions">              
               {userName && (
                 <p>Olá, {userName}</p>
               )}
-            </div> }
+            </div> } */}
             <div className="header-actions">              
               <button className="sign-out-btn" onClick={handleSignOut} title="Sair">
                 🚪 Sair

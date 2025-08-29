@@ -84,8 +84,8 @@
 
 @media (max-width: 599px) {
   .carousel-card {
-    min-width: 140px;
-    max-width: 140px;
+    min-width: 120px;
+    max-width: 120px;
     min-height: 120px;
     max-height: 120px;
     font-size: 0.98rem;

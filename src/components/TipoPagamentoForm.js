@@ -169,6 +169,7 @@ function TipoPagamentoForm() {
           <option value="DINHEIRO">Dinheiro</option>
           <option value="PIX">PIX</option>
           <option value="TRANSFERENCIA">Transferência</option>
+          <option value="BOLETO">Boleto</option> {/* Adicionado aqui */}
         </select>
 
         <input
